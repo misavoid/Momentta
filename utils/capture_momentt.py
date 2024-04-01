@@ -6,6 +6,7 @@ from typing import Optional, Tuple
 from utils.identifiers.getWindowTitle import get_active_window_title
 from utils.identifiers.getApplicationTitle import get_active_application
 
+
 # TODO: outsource the category rules to different file
 # TODO: find out how to automatically create the database and start it from the main.py
 
@@ -34,25 +35,21 @@ class ActivityTracker:
         connection.commit()
         connection.close()
 
-    def map_title_to_category(self, title: str, app: str) -> Optional[str]:
+    def map_app_to_category(self, app):
         for app_name, category in self.category_rules.items():
-            if app_name.lower() in title.lower() or app_name.lower() in app.lower():
+            if app_name == app:
                 return category
-            else:
-                return 'Other'
+        return "Uncategorized"
 
     def capture_moment(self):
-        title = get_active_window_title()
+        window_title = get_active_window_title()
+        app = get_active_application()
 
-        if not title:
-            title = get_active_application()
-
-        if title:
-            app = get_active_application()
-            category = self.map_title_to_category(title, app)
-
-            self.log_activity(title, app, category)
+        if app:
+            category = self.map_app_to_category(app)  # map based on the application title
+            self.log_activity(window_title, app, category)  # log both window and app titles
             self.last_activity_time = time.time()
+
         elif time.time() - self.last_activity_time > self.afk_threshold:
             self.log_activity('AFK', 'AFK', 'AFK')
 
@@ -71,4 +68,6 @@ class ActivityTracker:
         # You can decide the interval in seconds
         while True:
             self.capture_moment()
+            print(f"Activity captured: {self}")
+            print("Activity logged.")
             time.sleep(interval)

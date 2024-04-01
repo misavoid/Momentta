@@ -5,13 +5,14 @@ from typing import Optional
 
 def get_active_application():
     if platform.system() == 'Windows':
-        return get_active_application_windows()
+        return get_active_application_windows().lower()
     elif platform.system() == 'Darwin':  # This is for macOS.
-        return get_active_application_mac()
+        return get_active_application_mac().lower()
     elif platform.system() == 'Linux':
-        return get_active_application_linux()
+        return get_active_application_linux().lower()
     else:
         raise Exception('Unsupported platform: ' + platform.system())
+
 
 
 def get_active_application_windows() -> Optional[str]:

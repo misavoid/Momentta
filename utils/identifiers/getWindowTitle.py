@@ -5,11 +5,11 @@ from typing import Optional
 
 def get_active_window_title():
     if platform.system() == 'Windows':
-        return get_active_window_title_windows()
+        return get_active_window_title_windows().lower()
     elif platform.system() == 'Darwin':  # this is for MacOS
-        return get_active_window_title_mac()
+        return get_active_window_title_mac().lower()
     elif platform.system() == 'Linux':
-        return get_active_window_title_linux()
+        return get_active_window_title_linux().lower()
     else:
         raise Exception('Unsupported platform: ' + platform.system())
 

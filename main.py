@@ -1,22 +1,38 @@
+import sqlite3
+from utils.app import app
 from utils.capture_momentt import ActivityTracker
-import json
-import os
 
-category_dir = "utils/categories/"
-category_rules = {}
+database = "momentta_categories.db"
 
 
-def load_configurations():
-    for category_file in os.listdir(category_dir):
-        if category_file.endswith('.json'):
-            with open(os.path.join(category_dir, category_file), 'r') as file:
-                category_rules.update(json.load(file))
-                return category_rules
+def load_configurations(database):
+    conn = sqlite3.connect(database)
+    curs = conn.cursor()
+
+    category_tables = ["Communication", "Design", "Development", "Entertainment", "Productivity", "SocialMedia",
+                       "Utilities"]
+
+    category_rules = {}
+    for table in category_tables:
+        curs.execute(f"SELECT Application FROM {table}")
+        apps = curs.fetchall()
+        category = table.lower()
+        for app in apps:
+            app_name = app[0].lower() if app[0] else ''
+            category_rules[app_name] = category
+
+    curs.close()
+    conn.close()
+
+    return category_rules
 
 
 def main():
-    rules = load_configurations()
+    rules = load_configurations(database)
+    print("Loaded rules: ", rules)  # Debug output
     tracker = ActivityTracker(db_path='momentta_tracking.db', category_rules=rules)
+
+    print("ActivityTracker created, starting tracking...")
 
     try:
         tracker.start_tracking()
@@ -26,5 +42,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+    app.run(debug=True)
 
 # %%
