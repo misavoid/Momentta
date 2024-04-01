@@ -1,33 +1,30 @@
-# app.py
+from flask import Flask, jsonify, render_template
+import sqlite3
 
-from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
-import plotly.express as px
-import pandas as pd
-
-# Initialization
-app = Flask(__name__, template_folder='utils/templates')
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///momentta_tracking.db"
-db = SQLAlchemy(app)
+app = Flask(__name__)
 
 
-# Define your data model
-class Usage(db.Model):
-    __tablename__ = "usage"
-
-    id = db.Column(db.Integer, primary_key=True)
-    app = db.Column(db.String)
-    time_spent = db.Column(db.Integer)
+@app.route('/')
+def home():
+    return "Hello, this is a minimalistic Flask application!"
 
 
-@app.route("/")
+@app.route('/dashboard')
 def dashboard():
-    # Query data from Sqlite
-    data = Usage.query.all()
-    df = pd.DataFrame([datum.__dict__ for datum in data])
+    # Connect to the SQLite database
+    connection = sqlite3.connect('momentta_tracking.db')
+    cursor = connection.cursor()
 
-    # Create visualizations
-    fig_usage = px.bar(df, x='app', y='time_spent')
-    fig_usage_div = fig_usage.to_html(full_html=False)
+    # Execute a SQL query to fetch all records from the activity_log table
+    cursor.execute('SELECT * FROM activity_log')
+    records = cursor.fetchall()
 
-    return render_template('dashboard.html', fig_usage_div=fig_usage_div)
+    # Close the connection to the database
+    connection.close()
+
+    # Convert the records to a list of dictionaries
+    records_list = [dict(zip(['timestamp', 'window_title', 'application', 'category'], record)) for record in records]
+
+    # Return the records as a JSON response
+    return jsonify(records_list)
+

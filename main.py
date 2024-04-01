@@ -1,6 +1,8 @@
+import threading
 import sqlite3
 from utils.app import app
 from utils.capture_momentt import ActivityTracker
+import os
 
 database = "momentta_categories.db"
 
@@ -28,11 +30,17 @@ def load_configurations(database):
 
 
 def main():
+    # Load configurations from database
     rules = load_configurations(database)
+
     print("Loaded rules: ", rules)  # Debug output
+
+    # Create ActivityTracker instance
     tracker = ActivityTracker(db_path='momentta_tracking.db', category_rules=rules)
 
     print("ActivityTracker created, starting tracking...")
+
+    # Make sure the SQLite database exists and all tables are created
 
     try:
         tracker.start_tracking()
@@ -40,8 +48,14 @@ def main():
         print(f"An error occurred: {e}")
 
 
-if __name__ == "__main__":
-    main()
-    app.run(debug=True)
+def run_flask():
+    app.run(debug=True, use_reloader=False)
 
+
+if __name__ == "__main__":
+    # Start the Flask app in a separate thread
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.start()
+
+    main()
 # %%
