@@ -12,7 +12,7 @@ Once the configuration is loaded, Momentta deploys the `ActivityTracker` class f
 
 The `ActivityTracker` class accepts two main parameters:
 - `db_path`: where the tracking results will be stored (default is `momentta_tracking.db`)
-- `category_rules`: the rules loaded from the `momentta_categories.db` to categorize activities, in which one category has one table with all applications for that category.
+- `category_rules`: the "rules" (app lists) loaded from the `momentta_categories.db` to categorize activities, in which one category has one table with all applications for that category.
 
 ## How to use? ☕
 
@@ -26,7 +26,7 @@ Momentta uses a database file named `momentta_tracking.db` to store the tracked 
 
 Momentta will log any error that occurred during the tracking process to a not yet existing logfile. 
 The error log will probably be stored in the `logs/` directory with the filename `momentta_error.log`.
-Don't forget to check your terminal window if tracking isn't working as expected. 🕵️
+~~Don't forget to check your terminal window if tracking isn't working as expected. 🕵️~~
 
 Hope you find Momentta helpful in your everyday routine 😄
 
@@ -34,4 +34,5 @@ Hope you find Momentta helpful in your everyday routine 😄
 
 Feel free to check out the code! Contributions to Momentta are very much appreciated. Whether it's feature enhancement, bug fixing, or performance improvements, just fork the repository, make your changes and open a pull request. ✨
 
-Happy tracking! 🐾
+Happy tracking! 🚀
+```
