@@ -1,8 +1,7 @@
 import threading
 import sqlite3
-from utils.app import app
+from utils.flask_app.app import app
 from utils.capture_momentt import ActivityTracker
-import os
 
 database = "momentta_categories.db"
 

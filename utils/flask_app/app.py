@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, render_template
 import sqlite3
 
+
 app = Flask(__name__)
 
 
@@ -25,6 +26,5 @@ def dashboard():
     # Convert the records to a list of dictionaries
     records_list = [dict(zip(['timestamp', 'window_title', 'application', 'category'], record)) for record in records]
 
-    # Return the records as a JSON response
-    return jsonify(records_list)
+    return render_template('dashboard.html', records=records_list)
 

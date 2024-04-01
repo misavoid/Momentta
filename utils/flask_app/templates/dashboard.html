@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</head>
+<body>
+<div id="data" style="display: none;" data-records='{{ records | tojson | safe }}'></div>
+<h1>Dashboard</h1>
+<p>Welcome to the dashboard!</p>
+    <div id="bar-chart"></div>
+
+</body>
+</html>
+
