@@ -3,6 +3,7 @@ import sqlite3
 from utils.flask_app.app import app
 from utils.capture_momentt import ActivityTracker
 
+
 database = "momentta_categories.db"
 
 
@@ -19,7 +20,7 @@ def load_configurations(database):
         apps = curs.fetchall()
         category = table.lower()
         for app in apps:
-            app_name = app[0].lower() if app[0] else ''
+            app_name = app[0].lower() if app[0] is not None else ''
             category_rules[app_name] = category
 
     curs.close()

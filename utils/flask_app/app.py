@@ -1,7 +1,8 @@
 from flask import Flask, jsonify, render_template
 import sqlite3
-
-
+import pandas as pd
+import plotly.express as px
+import plotly.io as pio
 app = Flask(__name__)
 
 
@@ -23,8 +24,17 @@ def dashboard():
     # Close the connection to the database
     connection.close()
 
-    # Convert the records to a list of dictionaries
-    records_list = [dict(zip(['timestamp', 'window_title', 'application', 'category'], record)) for record in records]
+    # Convert the records to a pandas DataFrame
+    df = pd.DataFrame(records, columns=['timestamp', 'window_title', 'application', 'category'])
 
-    return render_template('dashboard.html', records=records_list)
+    # Create a bar chart with Plotly
+    fig = px.bar(df, x='category', y='timestamp', title='Number of activities per category')
+
+    # Convert the figures to HTML div string
+    graph_div = pio.to_html(fig, full_html=False)
+
+    # Convert the records to a list of dictionaries
+    records_list = df.to_dict('records')
+
+    return render_template('dashboard.html', records=records_list, graph_div=graph_div)
 
