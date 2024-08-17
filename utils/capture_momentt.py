@@ -67,7 +67,9 @@ class ActivityTracker:
     def start_tracking(self, interval: int = 5):
         # You can decide the interval in seconds
         while True:
+            app = get_active_application()
+            category = self.map_app_to_category(app)
             self.capture_moment()
-            print(f"Activity captured: {self}")
+            print(f"Activity captured: {get_active_window_title()} + {category}")
             print("Activity logged.")
             time.sleep(interval)
