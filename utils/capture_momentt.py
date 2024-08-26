@@ -17,6 +17,8 @@ class ActivityTracker:
         self.afk_threshold = 30  # seconds
         self.last_activity_time = time.time()
         self.category_rules = category_rules
+        self.current_activity = None
+        self.start_time = None
 
         # Initialize the database
         self.initialize_database()
@@ -29,7 +31,8 @@ class ActivityTracker:
                 timestamp TEXT,
                 window_title TEXT,
                 application TEXT,
-                category TEXT
+                category TEXT,
+                duration REAL
             )
         ''')
         connection.commit()
@@ -47,20 +50,43 @@ class ActivityTracker:
 
         if app:
             category = self.map_app_to_category(app)  # map based on the application title
-            self.log_activity(window_title, app, category)  # log both window and app titles
+
+            if self.current_activity and app != self.current_activity:
+                # Calculate duration of the previous activity
+                end_time = datetime.now()
+                duration = (end_time - self.start_time).total_seconds()
+                # Log the previous activity
+                self.log_activity(self.current_activity['window_title'],
+                                  self.current_activity['app'],
+                                  self.current_activity['category'],
+                                  duration)
+
+            # Start tracking the new activity
+            self.current_activity = {'window_title': window_title, 'app': app, 'category': category}
+            self.start_time = datetime.now()
+
+            # Update the last activity time
             self.last_activity_time = time.time()
 
         elif time.time() - self.last_activity_time > self.afk_threshold:
-            self.log_activity('AFK', 'AFK', 'AFK')
+            self.log_activity('AFK', 'AFK', 'AFK', 0)
+            self.current_activity = None
 
-    def log_activity(self, window_title: str, app: str, category: str):
+
+            '''self.log_activity(window_title, app, category)  # log both window and app titles
+            self.last_activity_time = time.time()
+
+        elif time.time() - self.last_activity_time > self.afk_threshold:
+            self.log_activity('AFK', 'AFK', 'AFK')'''
+
+    def log_activity(self, window_title: str, app: str, category: str, duration: float):
         timestamp = datetime.now().isoformat()
         connection = sqlite3.connect(self.db_path)
         cursor = connection.cursor()
         cursor.execute('''
-            INSERT INTO activity_log (timestamp, window_title, application, category) 
-            VALUES (?, ?, ?, ?)
-        ''', (timestamp, window_title, app, category))
+            INSERT INTO activity_log (timestamp, window_title, application, category, duration) 
+            VALUES (?, ?, ?, ?, ?)
+        ''', (timestamp, window_title, app, category, duration))
         connection.commit()
         connection.close()
 
