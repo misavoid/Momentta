@@ -1,11 +1,16 @@
 import threading
 import sqlite3
+import time
+import tkinter as tk
+from os import wait4
+
+from tenacity import sleep
+
 from utils.flask_app.app import app
 from utils.capture_momentt import ActivityTracker
 import logging
 
-
-database = "momentta_categories.db"
+database = "dbs/momentta_categories.db"
 
 
 def load_configurations(database):
@@ -44,16 +49,21 @@ def run_momentta():
     print("Loaded rules: ", rules)  # Debug output
 
     # Create ActivityTracker instance
-    tracker = ActivityTracker(db_path='momentta_tracking.db', category_rules=rules)
+    tracker = ActivityTracker(db_path='dbs/momentta_tracking.db', category_rules=rules)
 
     print("ActivityTracker created, starting tracking...")
 
-    try:
-        tracker.start_tracking()
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    while True:
+        try:
+            tracker.start_tracking()
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            print('retrying in five seconds...')
+            time.sleep(5)
+
 
 if __name__ == "__main__":
+
     # Start the Momentta tracking in a separate thread
     tracking_thread = threading.Thread(target=run_momentta)
     tracking_thread.start()

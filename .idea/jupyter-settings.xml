@@ -10,39 +10,25 @@
             </JupyterConnectionParameters>
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../.idea/DataSpell.iml">
+          <value>
+            <JupyterConnectionParameters>
+              <option name="managed" value="true" />
+            </JupyterConnectionParameters>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../Airport/.idea/Airport.iml">
+          <value>
+            <JupyterConnectionParameters>
+              <option name="managed" value="true" />
+            </JupyterConnectionParameters>
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../Covid19 Analysis/.idea/Covid19 Analysis.iml">
           <value>
             <JupyterConnectionParameters>
               <option name="managed" value="true" />
               <option name="sdkHomePath" value="$USER_HOME$/miniforge3/bin/python" />
-            </JupyterConnectionParameters>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/../.idea/DataSpell.iml">
-          <value>
-            <JupyterConnectionParameters>
-              <option name="managed" value="true" />
-            </JupyterConnectionParameters>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/../Airport/.idea/Airport.iml">
-          <value>
-            <JupyterConnectionParameters>
-              <option name="managed" value="true" />
-            </JupyterConnectionParameters>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/../.idea/DataSpell.iml">
-          <value>
-            <JupyterConnectionParameters>
-              <option name="managed" value="true" />
-            </JupyterConnectionParameters>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/../Airport/.idea/Airport.iml">
-          <value>
-            <JupyterConnectionParameters>
-              <option name="managed" value="true" />
             </JupyterConnectionParameters>
           </value>
         </entry>

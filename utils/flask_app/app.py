@@ -16,7 +16,7 @@ def home():
 @app.route('/dashboard')
 def dashboard():
     # Connect to the SQLite database
-    connection = sqlite3.connect('momentta_tracking.db')
+    connection = sqlite3.connect('dbs/momentta_tracking.db')
     cursor = connection.cursor()
 
     # Execute a SQL query to fetch all records from the activity_log table

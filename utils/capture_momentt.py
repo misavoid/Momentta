@@ -39,10 +39,13 @@ class ActivityTracker:
         connection.close()
 
     def map_app_to_category(self, app):
+        app_lower = app.lower()
         for app_name, category in self.category_rules.items():
-            if app_name == app:
+            if app_name.lower() == app_lower:
                 return category
         return "Uncategorized"
+
+#TODO: i have no idea why the category mapping isn't working. suspected a problem with upper and lowercase handling but either im missing something or that's not the problem
 
     def capture_moment(self):
         window_title = get_active_window_title()
@@ -67,6 +70,8 @@ class ActivityTracker:
 
             # Update the last activity time
             self.last_activity_time = time.time()
+
+#TODO: fix afk feature
 
         elif time.time() - self.last_activity_time > self.afk_threshold:
             self.log_activity('AFK', 'AFK', 'AFK', 0)
