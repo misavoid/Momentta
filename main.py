@@ -6,37 +6,13 @@ from os import wait4
 
 from tenacity import sleep
 
+from utils.load_categories import load_configurations
 from utils.flask_app.app import app
 from utils.capture_momentt import ActivityTracker
 import logging
 
 database = "dbs/momentta_categories.db"
 
-
-def load_configurations(database):
-    conn = sqlite3.connect(database)
-    curs = conn.cursor()
-
-    category_tables = ["Communication", "Design", "Development", "Entertainment", "Productivity", "SocialMedia",
-                       "Utilities"]
-
-    category_rules = {}
-    for table in category_tables:
-        curs.execute(f"SELECT Application FROM {table}")
-        apps = curs.fetchall()
-        if table is not None:
-            category = table.lower()
-        else:
-            category = ''
-            logging.warning(f"Table name is None, setting category to empty string.")
-        for app in apps:
-            app_name = app[0].lower() if app[0] is not None else ''
-            category_rules[app_name] = category
-
-    curs.close()
-    conn.close()
-
-    return category_rules
 
 
 def run_flask():

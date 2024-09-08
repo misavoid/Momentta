@@ -8,7 +8,6 @@ from utils.identifiers.getApplicationTitle import get_active_application
 
 
 # TODO: outsource the category rules to different file
-# TODO: find out how to automatically create the database and start it from the main.py
 
 
 class ActivityTracker:
