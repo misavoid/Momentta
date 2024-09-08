@@ -3,6 +3,11 @@ import psutil
 import time
 from datetime import datetime
 from typing import Optional, Tuple
+
+from pandas.io.formats.info import series_sub_kwargs
+
+from utils.load_categories import CategoryMapper
+
 from utils.identifiers.getWindowTitle import get_active_window_title
 from utils.identifiers.getApplicationTitle import get_active_application
 
@@ -18,7 +23,8 @@ class ActivityTracker:
         self.category_rules = category_rules
         self.current_activity = None
         self.start_time = None
-
+        # Initialize CategoryMapper once
+        self.category_mapper = CategoryMapper(database='dbs/momentta_categories.db')
         # Initialize the database
         self.initialize_database()
 
@@ -37,51 +43,43 @@ class ActivityTracker:
         connection.commit()
         connection.close()
 
-    def map_app_to_category(self, app):
-        app_lower = app.lower()
-        for app_name, category in self.category_rules.items():
-            if app_name.lower() == app_lower:
-                return category
-        return "Uncategorized"
 
 #TODO: i have no idea why the category mapping isn't working. suspected a problem with upper and lowercase handling but either im missing something or that's not the problem
+
+
 
     def capture_moment(self):
         window_title = get_active_window_title()
         app = get_active_application()
 
         if app:
-            category = self.map_app_to_category(app)  # map based on the application title
+            # Use already-initialized category mapper, no need to initialize each time
+            category = self.category_mapper.map_app_to_category(app)
 
-            if self.current_activity and app != self.current_activity:
-                # Calculate duration of the previous activity
-                end_time = datetime.now()
-                duration = (end_time - self.start_time).total_seconds()
-                # Log the previous activity
-                self.log_activity(self.current_activity['window_title'],
-                                  self.current_activity['app'],
-                                  self.current_activity['category'],
-                                  duration)
-
-            # Start tracking the new activity
+        if self.current_activity is None:
             self.current_activity = {'window_title': window_title, 'app': app, 'category': category}
             self.start_time = datetime.now()
-
-            # Update the last activity time
             self.last_activity_time = time.time()
+            return
+        if app != self.current_activity['app']:
+            end_time = datetime.now()
+            duration = (end_time - self.start_time).total_seconds()
 
-#TODO: fix afk feature
+            self.log_activity(self.current_activity['window_title'],
+                              self.current_activity['app'],
+                              self.current_activity['category'],
+                              duration)
+
+            self.current_activity = {'window_title': window_title, 'app': app, 'category': category}
+            self.start_time = datetime.now()
+            self.last_activity_time = time.time()
 
         elif time.time() - self.last_activity_time > self.afk_threshold:
             self.log_activity('AFK', 'AFK', 'AFK', 0)
-            self.current_activity = None
+            self.current_activity = 'afk'
 
 
-            '''self.log_activity(window_title, app, category)  # log both window and app titles
-            self.last_activity_time = time.time()
-
-        elif time.time() - self.last_activity_time > self.afk_threshold:
-            self.log_activity('AFK', 'AFK', 'AFK')'''
+        #TODO: fix afk feature
 
     def log_activity(self, window_title: str, app: str, category: str, duration: float):
         timestamp = datetime.now().isoformat()
@@ -95,11 +93,9 @@ class ActivityTracker:
         connection.close()
 
     def start_tracking(self, interval: int = 5):
-        # You can decide the interval in seconds
+        # Track activity at the defined interval
         while True:
-            app = get_active_application()
-            category = self.map_app_to_category(app)
             self.capture_moment()
-            print(f"Activity captured: {get_active_window_title()} + {category}")
+            print(f"Activity captured: {get_active_window_title()} + {self.current_activity['category']}")
             print("Activity logged.")
             time.sleep(interval)
