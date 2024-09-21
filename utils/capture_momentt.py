@@ -2,18 +2,9 @@ import sqlite3
 import psutil
 import time
 from datetime import datetime
-from typing import Optional, Tuple
-
-from pandas.io.formats.info import series_sub_kwargs
-
 from utils.load_categories import CategoryMapper
-
 from utils.identifiers.getWindowTitle import get_active_window_title
 from utils.identifiers.getApplicationTitle import get_active_application
-
-
-# TODO: outsource the category rules to different file
-
 
 class ActivityTracker:
     def __init__(self, db_path: str, category_rules: dict):
@@ -43,59 +34,66 @@ class ActivityTracker:
         connection.commit()
         connection.close()
 
-
-#TODO: i have no idea why the category mapping isn't working. suspected a problem with upper and lowercase handling but either im missing something or that's not the problem
-
-
-
     def capture_moment(self):
-        window_title = get_active_window_title()
-        app = get_active_application()
+        try:
+            window_title = get_active_window_title() or 'Unknown Window'
+            app = get_active_application() or 'Unknown Application'
 
-        if app:
-            # Use already-initialized category mapper, no need to initialize each time
-            category = self.category_mapper.map_app_to_category(app)
+            # Normalize application name (lowercase)
+            app_normalized = app.lower()
 
-        if self.current_activity is None:
-            self.current_activity = {'window_title': window_title, 'app': app, 'category': category}
-            self.start_time = datetime.now()
-            self.last_activity_time = time.time()
-            return
-        if app != self.current_activity['app']:
-            end_time = datetime.now()
-            duration = (end_time - self.start_time).total_seconds()
+            # Use the category mapper
+            category = self.category_mapper.map_app_to_category(app_normalized)
 
-            self.log_activity(self.current_activity['window_title'],
-                              self.current_activity['app'],
-                              self.current_activity['category'],
-                              duration)
+            if self.current_activity is None:
+                self.current_activity = {'window_title': window_title, 'app': app, 'category': category}
+                self.start_time = datetime.now()
+                self.last_activity_time = time.time()
+                return
 
-            self.current_activity = {'window_title': window_title, 'app': app, 'category': category}
-            self.start_time = datetime.now()
-            self.last_activity_time = time.time()
+            # Check if the application changed or user went AFK
+            if app != self.current_activity['app'] or time.time() - self.last_activity_time > self.afk_threshold:
+                end_time = datetime.now()
+                duration = (end_time - self.start_time).total_seconds()
 
-        elif time.time() - self.last_activity_time > self.afk_threshold:
-            self.log_activity('AFK', 'AFK', 'AFK', 0)
-            self.current_activity = 'afk'
+                self.log_activity(self.current_activity['window_title'],
+                                  self.current_activity['app'],
+                                  self.current_activity['category'],
+                                  duration)
 
+                self.current_activity = {'window_title': window_title, 'app': app, 'category': category}
+                self.start_time = datetime.now()
+                self.last_activity_time = time.time()
 
-        #TODO: fix afk feature
+            elif time.time() - self.last_activity_time > self.afk_threshold:
+                self.log_activity('AFK', 'AFK', 'AFK', 0)
+                self.current_activity = 'afk'
+
+        except Exception as e:
+            print(f"An error occurred during activity capture: {e}")
 
     def log_activity(self, window_title: str, app: str, category: str, duration: float):
-        timestamp = datetime.now().isoformat()
-        connection = sqlite3.connect(self.db_path)
-        cursor = connection.cursor()
-        cursor.execute('''
-            INSERT INTO activity_log (timestamp, window_title, application, category, duration) 
-            VALUES (?, ?, ?, ?, ?)
-        ''', (timestamp, window_title, app, category, duration))
-        connection.commit()
-        connection.close()
+        try:
+            timestamp = datetime.now().isoformat()
+            connection = sqlite3.connect(self.db_path)
+            cursor = connection.cursor()
+            cursor.execute('''
+                INSERT INTO activity_log (timestamp, window_title, application, category, duration) 
+                VALUES (?, ?, ?, ?, ?)
+            ''', (timestamp, window_title, app, category, duration))
+            connection.commit()
+        except sqlite3.Error as e:
+            print(f"Database error occurred: {e}")
+        finally:
+            connection.close()
+
 
     def start_tracking(self, interval: int = 5):
         # Track activity at the defined interval
         while True:
             self.capture_moment()
-            print(f"Activity captured: {get_active_window_title()} + {self.current_activity['category']}")
+            if self.current_activity and isinstance(self.current_activity, dict):
+                print(f"Activity captured: {self.current_activity['window_title']} + {self.current_activity['category']}")
             print("Activity logged.")
             time.sleep(interval)
+
