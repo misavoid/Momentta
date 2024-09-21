@@ -34,7 +34,7 @@ def run_momentta():
 
 if __name__ == "__main__":
 
-    # Start the Momentta tracking in a separate thread
+    # Start the momentta tracking in a separate thread
     tracking_thread = threading.Thread(target=run_momentta)
     tracking_thread.start()
 

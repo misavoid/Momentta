@@ -1,0 +1,11 @@
+<!-- momentta/templates/activities_list.html -->
+<html>
+<body>
+<h1>Logged Activities</h1>
+<ul>
+    {% for activity in activities %}
+    <li>{{ activity.timestamp }} - {{ activity.application }} - {{ activity.category }} - {{ activity.duration }} mins</li>
+    {% endfor %}
+</ul>
+</body>
+</html>
