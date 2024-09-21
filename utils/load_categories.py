@@ -1,3 +1,4 @@
+import re
 import sqlite3
 import logging
 
@@ -23,12 +24,13 @@ def load_configurations(database):
             curs.execute(f"SELECT Application FROM {table}")
             apps = curs.fetchall()
             for app in apps:
-                print(app)
                 app_name = app[0] if app and app[0] else ''  # Check for valid application names
-                print(app_name)
                 if app_name:
-                    category_rules[app_name.lower()] = table
-                    print(f"mapped '{app_name.lower()}' to category '{table}'")
+                    # create regex pattern for matching app names
+                    pattern = re.compile(re.escape(app_name), re.IGNORECASE)
+                    print(pattern)
+                    category_rules[pattern] = table
+                    print(f"mapped regex pattern '{app_name}' to category '{table}'")
     except sqlite3.Error as e:
         logging.error(f"Database error occurred: {e}")
     finally:
@@ -47,11 +49,10 @@ class CategoryMapper:
         normalized_app = app.lower()
         print(f"Mapping application '{app}' (normalized: '{normalized_app}') to category...")
 
-        if normalized_app in self.category_rules:
-            category = self.category_rules[normalized_app]
-            print(f"Application '{app}' successfully mapped to category '{category}'")
-        else:
-            category = "Uncategorized"
-            print(f"Application '{app}' not found in category rules, mapped to 'Uncategorized'")
+        for pattern, category in self.category_rules.items():
+            if pattern.search(normalized_app):
+                print(f"application 'app' successfully mapped to category '{category}' using regex pattern '{pattern.pattern}")
+                return category
 
-        return category
+        print(f"application '{app}' not found in category rules, mapped to 'Uncategorized'")
+        return "Uncategorized"
