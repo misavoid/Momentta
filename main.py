@@ -1,18 +1,11 @@
 import threading
-import sqlite3
 import time
-import tkinter as tk
-from os import wait4
-
-from tenacity import sleep
 
 from utils.load_categories import CategoryMapper
 from utils.flask_app.app import app
 from utils.capture_momentt import ActivityTracker
-import logging
 
 database = "dbs/momentta_categories.db"
-
 
 
 def run_flask():

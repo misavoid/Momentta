@@ -51,7 +51,7 @@ class CategoryMapper:
 
         for pattern, category in self.category_rules.items():
             if pattern.search(normalized_app):
-                print(f"application 'app' successfully mapped to category '{category}' using regex pattern '{pattern.pattern}")
+                print(f"application '{app}' successfully mapped to category '{category}' using regex pattern '{pattern.pattern}")
                 return category
 
         print(f"application '{app}' not found in category rules, mapped to 'Uncategorized'")

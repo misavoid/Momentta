@@ -1,7 +1,7 @@
 import sqlite3
-import psutil
 import time
 from datetime import datetime
+
 from utils.load_categories import CategoryMapper
 from utils.identifiers.getWindowTitle import get_active_window_title
 from utils.identifiers.getApplicationTitle import get_active_application
